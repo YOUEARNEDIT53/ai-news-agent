@@ -150,18 +150,21 @@ export async function sendDigestEmail(
   date: string,
   content: DigestContent
 ): Promise<{ success: boolean; error?: string }> {
-  const to = process.env.DIGEST_EMAIL_TO;
+  const toEnv = process.env.DIGEST_EMAIL_TO;
   const from = process.env.DIGEST_EMAIL_FROM || 'AI News Agent <onboarding@resend.dev>';
 
-  if (!to) {
+  if (!toEnv) {
     return { success: false, error: 'DIGEST_EMAIL_TO not configured' };
   }
+
+  // Support multiple recipients (comma-separated)
+  const recipients = toEnv.split(',').map(email => email.trim()).filter(Boolean);
 
   try {
     const resend = getResendClient();
     const { error } = await resend.emails.send({
       from,
-      to: [to],
+      to: recipients,
       subject: `AI News Digest — ${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
       html: generateDigestHtml(date, content),
       text: generateDigestText(date, content),
@@ -172,6 +175,155 @@ export async function sendDigestEmail(
     }
 
     return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+export function generateWelcomeHtml(date: string, content: DigestContent): string {
+  const formattedDate = new Date(date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const welcomeMessage = `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+      <tr>
+        <td style="padding: 30px; color: white;">
+          <h2 style="margin: 0 0 15px 0; font-size: 22px;">Welcome to the AI News Agent!</h2>
+          <p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.6;">
+            This system was <strong>built from scratch by Chris</strong> to keep you informed on the rapidly evolving AI landscape.
+          </p>
+          <p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.6;">
+            <strong>Why daily updates matter:</strong> AI is advancing at a pace that makes Moore's Law look slow.
+            While Moore's Law predicted computing power doubling every 2 years, AI capabilities are now
+            <strong>doubling every 6 months</strong>. NVIDIA's CEO Jensen Huang calls it "Moore's Law squared" —
+            AI has advanced <strong>100,000x in a decade</strong>, compared to the 100x that Moore's Law would predict.
+          </p>
+          <p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.6;">
+            With $320+ billion in AI infrastructure spending in 2025 alone and breakthroughs happening weekly,
+            staying current isn't optional — it's essential.
+          </p>
+          <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; margin-top: 20px;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">Your Daily Briefing:</p>
+            <p style="margin: 0; font-size: 14px;">
+              📬 <strong>Email Digest + Audio Podcast</strong> delivered at <strong>4:30 PM ET</strong> every day
+            </p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 25px; background: #f8f9fa; border-radius: 8px;">
+      <tr>
+        <td style="padding: 20px;">
+          <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1a1a1a;">What Makes This Unique: 22 Diverse Sources</h3>
+          <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #444;">
+            <tr>
+              <td style="padding: 4px 0; vertical-align: top; width: 50%;">
+                <strong>Research:</strong><br/>
+                arXiv (ML, AI, NLP, CV, Robotics), HuggingFace Papers
+              </td>
+              <td style="padding: 4px 0; vertical-align: top;">
+                <strong>Lab Blogs:</strong><br/>
+                OpenAI, DeepMind, Google Research, Meta AI, Microsoft Research
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0 4px 0; vertical-align: top;">
+                <strong>Enterprise:</strong><br/>
+                VentureBeat, Ars Technica, AWS ML, NVIDIA, MLOps Community
+              </td>
+              <td style="padding: 8px 0 4px 0; vertical-align: top;">
+                <strong>Community:</strong><br/>
+                r/MachineLearning, r/LocalLLaMA, Hacker News
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding: 8px 0 0 0; vertical-align: top;">
+                <strong>Robotics & Industrial:</strong> Robot Report, Robohub, Roboflow, Automation World
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  `;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #fff;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding-bottom: 20px; border-bottom: 3px solid #1a1a1a;">
+            <h1 style="margin: 0; font-size: 24px; color: #1a1a1a;">
+              AI News Digest
+            </h1>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 14px;">
+              ${formattedDate}
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding-top: 20px;">
+            ${welcomeMessage}
+            ${formatSection('Must Know', '🔴', content.must_know)}
+            ${formatSection('Worth a Look', '🟡', content.worth_a_look)}
+            ${formatSection('Quick Hits', '🔵', content.quick_hits)}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+            <p>
+              Generated by AI News Agent (Built by Chris) •
+              <a href="${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}" style="color: #666;">
+                View on Dashboard
+              </a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+export async function sendWelcomeDigestEmail(
+  date: string,
+  content: DigestContent,
+  recipients: string[]
+): Promise<{ success: boolean; error?: string; sent_to?: string[] }> {
+  const from = process.env.DIGEST_EMAIL_FROM || 'AI News Agent <onboarding@resend.dev>';
+
+  if (recipients.length === 0) {
+    return { success: false, error: 'No recipients provided' };
+  }
+
+  try {
+    const resend = getResendClient();
+    const { error } = await resend.emails.send({
+      from,
+      to: recipients,
+      subject: `Welcome to AI News Digest — Your First Briefing (${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`,
+      html: generateWelcomeHtml(date, content),
+      text: generateDigestText(date, content),
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, sent_to: recipients };
   } catch (error) {
     return {
       success: false,
