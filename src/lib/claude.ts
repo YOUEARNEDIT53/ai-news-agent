@@ -115,7 +115,7 @@ ${truncatedContent || '(No content available - summarize based on title only)'}`
     return {
       summary: title,
       why_it_matters: 'Unable to analyze significance',
-      category: 'community',
+      category: 'business',
       topics: [],
       relevance_score: 30,
       must_read: false,
@@ -127,15 +127,23 @@ ${truncatedContent || '(No content available - summarize based on title only)'}`
 }
 
 function validateCategory(category: string): ItemCategory {
-  const valid: ItemCategory[] = [
-    'research_breakthrough', 'lab_announcement', 'open_source',
-    'enterprise', 'industrial', 'community',
-    // Keep old categories for backwards compatibility
-    'research', 'product', 'engineering', 'policy', 'security', 'business'
-  ];
-  return valid.includes(category as ItemCategory)
-    ? (category as ItemCategory)
-    : 'community';
+  // Map new categories to valid database enum values
+  const categoryMap: Record<string, ItemCategory> = {
+    'research_breakthrough': 'research',
+    'lab_announcement': 'product',
+    'open_source': 'engineering',
+    'enterprise': 'business',
+    'industrial': 'engineering',
+    'community': 'business',
+    // Valid database categories
+    'research': 'research',
+    'product': 'product',
+    'engineering': 'engineering',
+    'policy': 'policy',
+    'security': 'security',
+    'business': 'business',
+  };
+  return categoryMap[category] || 'business';
 }
 
 export async function summarizeBatch(

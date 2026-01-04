@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI News Agent
 
-## Getting Started
+An automated AI/ML news aggregation, summarization, and podcast generation system.
 
-First, run the development server:
+## Features
+
+- **22 Diverse Sources** - Research papers, lab blogs, enterprise news, robotics, and community discussions
+- **AI-Powered Summarization** - Claude claude-sonnet-4 analyzes and scores each article (0-100)
+- **Daily Email Digest** - Curated sections: Must Know, Worth a Look, Quick Hits
+- **Podcast Generation** - Audio briefings with two AI hosts (Marcus & Priya)
+- **Transparency** - Full explainability of scoring criteria and source selection
+
+## Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment (see .env.example)
+cp .env.example .env.local
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Run the full pipeline
+curl -X POST http://localhost:3000/api/ingest
+curl -X POST http://localhost:3000/api/summarize
+curl -X POST http://localhost:3000/api/digest
+curl -X POST http://localhost:3000/api/podcast
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## News Sources
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Category | Sources |
+|----------|---------|
+| Research | arXiv (ML, AI, NLP, CV, Robotics, stat.ML), HuggingFace Papers |
+| Lab Blogs | OpenAI, DeepMind, Google Research, Meta AI, Microsoft Research |
+| Enterprise | VentureBeat, Ars Technica, AWS ML, NVIDIA, MLOps Community |
+| Robotics | Robot Report, Robohub, Roboflow, Automation World |
+| Community | r/MachineLearning, r/LocalLLaMA, Hacker News |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for complete documentation including:
 
-To learn more about Next.js, take a look at the following resources:
+- Data flow pipeline
+- Scoring & classification algorithms
+- How to add/edit sources
+- Database schema
+- API reference
+- Troubleshooting guide
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework:** Next.js 16
+- **Database:** Supabase (PostgreSQL)
+- **AI:** Anthropic Claude claude-sonnet-4
+- **Email:** Resend
+- **Audio:** Microsoft Edge TTS
+- **Deployment:** Vercel (optional)
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_KEY=
+ANTHROPIC_API_KEY=
+RESEND_API_KEY=
+DIGEST_EMAIL_TO=
+DIGEST_EMAIL_FROM=
+CRON_SECRET=
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ingest` | POST | Fetch articles from all sources |
+| `/api/summarize` | POST | Summarize unsummarized articles |
+| `/api/digest` | POST/GET | Generate/retrieve daily digest |
+| `/api/podcast` | POST | Generate audio podcast |
+
+## Scoring Criteria
+
+| Score | Meaning |
+|-------|---------|
+| 90-100 | Breakthrough, major model release, critical security |
+| 75-89 | Notable research, significant tool release |
+| 60-74 | Useful update, interesting technique |
+| 40-59 | Incremental improvement, niche application |
+| 0-39 | Low relevance, promotional content |
+
+## License
+
+MIT
