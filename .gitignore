@@ -51,3 +51,6 @@ podcasts/*.mp3
 
 # Supabase temp
 supabase/.temp/
+
+# Private documentation with credentials
+SYSTEM_ACCESS_PRIVATE.md
