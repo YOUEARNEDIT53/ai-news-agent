@@ -1,25 +1,25 @@
-# Resend Domain Verification for ipguy.co
+# Resend Domain Verification for mail.ipguy.co
 
-**Domain ID:** a32cd07e-10b9-41c1-8581-5afbb6eff1c7
+**Domain ID:** 1d7b4415-3732-4b5a-afa2-513273b64c42
 **Status:** Pending DNS verification
 
 ## Required DNS Records
 
-Add these 3 records to your ipguy.co DNS settings:
+Add these 3 records to your ipguy.co DNS settings (note the `mail` subdomain):
 
 ### 1. DKIM Record (TXT)
 | Field | Value |
 |-------|-------|
 | **Type** | TXT |
-| **Name/Host** | `resend._domainkey` |
-| **Value** | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDT/fz4arbByfmciyiDV8jYleWs90+sPBlwbTm1gN0DQ2dSNIy9FhwmWB2HizpjKa4kCxOqdiRyPmbp6zacrQHZ4S5Egt6Lv4RzEzL3ilBL5OQOwe9vytNydpONsQ+I0H5rycOxoM1pSVFZSWEL5rXtQgBhua5PzpWZqDQj65etQQIDAQAB` |
+| **Name/Host** | `resend._domainkey.mail` |
+| **Value** | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDd49//zXnEoz9QyLppz6ao+w2XqgGH0zDB4hgivSRIC3H6/OyjIw+PbrXuarIPpDqRwaWtp6pcYDNc+vDkPm7i1oIfxy4n/4DFV61KMEHPUCgInpbQxRbFPzHdninnKp75Nd+L93GCxq0AvzIuqiwiU3EudtQ2y9tpPRq8QqAgHwIDAQAB` |
 | **TTL** | Auto/Default |
 
 ### 2. SPF MX Record
 | Field | Value |
 |-------|-------|
 | **Type** | MX |
-| **Name/Host** | `send` |
+| **Name/Host** | `send.mail` |
 | **Value** | `feedback-smtp.us-east-1.amazonses.com` |
 | **Priority** | 10 |
 | **TTL** | Auto/Default |
@@ -28,7 +28,7 @@ Add these 3 records to your ipguy.co DNS settings:
 | Field | Value |
 |-------|-------|
 | **Type** | TXT |
-| **Name/Host** | `send` |
+| **Name/Host** | `send.mail` |
 | **Value** | `v=spf1 include:amazonses.com ~all` |
 | **TTL** | Auto/Default |
 
@@ -37,13 +37,13 @@ Add these 3 records to your ipguy.co DNS settings:
 1. Wait 5-10 minutes for DNS propagation
 2. Verify the domain via API:
 ```bash
-curl -X POST "https://api.resend.com/domains/a32cd07e-10b9-41c1-8581-5afbb6eff1c7/verify" \
+curl -X POST "https://api.resend.com/domains/1d7b4415-3732-4b5a-afa2-513273b64c42/verify" \
   -H "Authorization: Bearer re_QQvQXrXk_96hjcZTfMSbMw3jCXtJszHro"
 ```
 
 3. The `.env.local` is already configured with:
 ```
-DIGEST_EMAIL_FROM=AI News Agent <news@ipguy.co>
+DIGEST_EMAIL_FROM=AI News Agent <news@mail.ipguy.co>
 ```
 
 ## Once Verified
