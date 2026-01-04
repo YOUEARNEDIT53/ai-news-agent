@@ -2,8 +2,10 @@ name: Generate AI News Podcast
 
 on:
   schedule:
-    # Run daily at 1:30 PM UTC (30 minutes after digest is generated on Vercel)
-    - cron: '30 13 * * *'
+    # Run 3 times daily
+    - cron: '0 8 * * *'   # 8:00 AM UTC (3:00 AM EST)
+    - cron: '0 14 * * *'  # 2:00 PM UTC (9:00 AM EST)
+    - cron: '0 20 * * *'  # 8:00 PM UTC (3:00 PM EST)
   workflow_dispatch: # Allow manual trigger
 
 jobs:
