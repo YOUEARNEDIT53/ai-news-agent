@@ -95,19 +95,21 @@ export async function POST(request: NextRequest) {
           sourceCategory
         );
 
-        // Insert summary
+        // Insert summary (priority_keywords and major_model added later if schema supports)
+        const insertData: Record<string, unknown> = {
+          item_id: item.id,
+          summary: summary.summary,
+          why_it_matters: summary.why_it_matters,
+          category: summary.category,
+          topics: summary.topics,
+          relevance_score: summary.relevance_score,
+          must_read: summary.must_read,
+          hype_flag: summary.hype_flag,
+        };
+
         const { error: insertError } = await supabaseAdmin
           .from('summaries')
-          .insert({
-            item_id: item.id,
-            summary: summary.summary,
-            why_it_matters: summary.why_it_matters,
-            category: summary.category,
-            topics: summary.topics,
-            relevance_score: summary.relevance_score,
-            must_read: summary.must_read,
-            hype_flag: summary.hype_flag,
-          });
+          .insert(insertData);
 
         if (insertError) {
           throw new Error(insertError.message);

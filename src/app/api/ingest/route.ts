@@ -6,6 +6,9 @@ import { Source } from '@/types';
 
 export const maxDuration = 60; // Allow up to 60 seconds for ingestion
 
+// Only ingest items from the last 7 days
+const MAX_AGE_DAYS = 7;
+
 interface IngestResult {
   source: string;
   fetched: number;
@@ -41,6 +44,16 @@ async function ingestSource(source: Source): Promise<IngestResult> {
         published_at: item.published_at,
       }));
     }
+
+    // Filter to only recent items (last 7 days)
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - MAX_AGE_DAYS);
+
+    items = items.filter(item => {
+      if (!item.published_at) return true; // Keep items without dates (we'll check them)
+      const pubDate = new Date(item.published_at);
+      return pubDate >= cutoffDate;
+    });
 
     result.fetched = items.length;
 

@@ -103,25 +103,29 @@ def generate_podcast_audio(text_content, output_path):
     """Generate podcast audio using Podcastfy with Edge TTS (free)"""
 
     # Custom conversation config for news briefing style
+    # Target: ~15 minutes max (~2000 words at 130 wpm)
     conversation_config = {
-        "word_count": 1500,
-        "conversation_style": ["informative", "professional", "engaging"],
+        "word_count": 2000,
+        "conversation_style": ["dynamic", "insightful", "conversational", "witty"],
         "podcast_name": "AI News Briefing",
-        "podcast_tagline": "Your daily dose of AI developments",
-        "creativity": 0.7,
-        "roles_person1": "Host",
-        "roles_person2": "Co-host",
+        "podcast_tagline": "Your daily AI intelligence report",
+        "creativity": 0.8,
+        "roles_person1": "Lead Analyst",
+        "roles_person2": "Technical Expert",
         "dialogue_structure": [
-            "Introduction",
-            "Must Know Stories",
-            "Worth A Look",
-            "Quick Hits",
-            "Closing"
+            "Quick intro (30 seconds)",
+            "Top Headlines - key breakthroughs and releases",
+            "Deep Dive - most important story",
+            "Industry Pulse - enterprise and community buzz",
+            "Rapid Fire - quick hits",
+            "Sign off"
         ],
         "engagement_techniques": [
-            "brief commentary",
-            "highlighting key points",
-            "making connections between stories"
+            "ask each other questions",
+            "provide technical context",
+            "share practical implications",
+            "occasional light humor",
+            "connect stories to broader trends"
         ],
         "output_language": "English"
     }

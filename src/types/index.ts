@@ -1,6 +1,10 @@
 export type SourceType = 'rss' | 'api' | 'scrape';
 export type SourceCategory = 'research' | 'lab' | 'ecosystem';
-export type ItemCategory = 'research' | 'product' | 'engineering' | 'policy' | 'security' | 'business';
+export type ItemCategory =
+  | 'research_breakthrough' | 'lab_announcement' | 'open_source'
+  | 'enterprise' | 'industrial' | 'community'
+  // Legacy categories for backwards compatibility
+  | 'research' | 'product' | 'engineering' | 'policy' | 'security' | 'business';
 
 export interface Source {
   id: string;
@@ -33,6 +37,8 @@ export interface Summary {
   relevance_score: number;
   must_read: boolean;
   hype_flag: boolean;
+  priority_keywords: string[];
+  major_model: string | null;
   created_at: string;
 }
 
@@ -74,6 +80,8 @@ export interface SummarizationResult {
   relevance_score: number;
   must_read: boolean;
   hype_flag: boolean;
+  priority_keywords: string[];
+  major_model: string | null;
 }
 
 export interface RSSItem {
