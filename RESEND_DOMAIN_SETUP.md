@@ -1,18 +1,18 @@
-# Resend Domain Verification for acrartex.com
+# Resend Domain Verification for ipguy.co
 
-**Domain ID:** 4e8e26c7-02e8-4b50-8bea-2dff98a2217a
+**Domain ID:** a32cd07e-10b9-41c1-8581-5afbb6eff1c7
 **Status:** Pending DNS verification
 
 ## Required DNS Records
 
-Add these 3 records to your acrartex.com DNS settings:
+Add these 3 records to your ipguy.co DNS settings:
 
 ### 1. DKIM Record (TXT)
 | Field | Value |
 |-------|-------|
 | **Type** | TXT |
 | **Name/Host** | `resend._domainkey` |
-| **Value** | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC5qVeKgfNHzcIUjwl65CteFX8rMf2Ko55gqoEa6KJItcv2bNy0Pm8K2MTD4Cz04XFRxjL/WXh3fvq2imlfeJ7eVB1hha5FLvCdLguvGQ/Foabo+t8cny6ViVmXW2QI1yvHgm6F30OqP7mRv4NpEFv4F4cLjNSk9oKJrV0+r9JvEQIDAQAB` |
+| **Value** | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDT/fz4arbByfmciyiDV8jYleWs90+sPBlwbTm1gN0DQ2dSNIy9FhwmWB2HizpjKa4kCxOqdiRyPmbp6zacrQHZ4S5Egt6Lv4RzEzL3ilBL5OQOwe9vytNydpONsQ+I0H5rycOxoM1pSVFZSWEL5rXtQgBhua5PzpWZqDQj65etQQIDAQAB` |
 | **TTL** | Auto/Default |
 
 ### 2. SPF MX Record
@@ -37,18 +37,18 @@ Add these 3 records to your acrartex.com DNS settings:
 1. Wait 5-10 minutes for DNS propagation
 2. Verify the domain via API:
 ```bash
-curl -X POST "https://api.resend.com/domains/4e8e26c7-02e8-4b50-8bea-2dff98a2217a/verify" \
+curl -X POST "https://api.resend.com/domains/a32cd07e-10b9-41c1-8581-5afbb6eff1c7/verify" \
   -H "Authorization: Bearer re_QQvQXrXk_96hjcZTfMSbMw3jCXtJszHro"
 ```
 
-3. Update the email FROM address in `.env.local`:
+3. The `.env.local` is already configured with:
 ```
-DIGEST_EMAIL_FROM=AI News Agent <news@acrartex.com>
+DIGEST_EMAIL_FROM=AI News Agent <news@ipguy.co>
 ```
 
 ## Once Verified
 
-The system will be able to send emails to any recipient including:
+The system will be able to send emails to:
 - adam.sadowski@acrartex.com
 - jim.story@acrartex.com
 - chris.bolender@acrartex.com
