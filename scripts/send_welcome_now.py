@@ -162,7 +162,7 @@ def generate_welcome_html(digest):
 </body>
 </html>'''
 
-def send_welcome_emails(from_email="AI News Agent <news@mail.ipguy.co>"):
+def send_welcome_emails(from_email="Chris Bolender's ACR AI News <news@mail.ipguy.co>"):
     """Send welcome emails to new recipients"""
     digest = get_latest_digest()
     if not digest:
