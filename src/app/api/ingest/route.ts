@@ -4,7 +4,7 @@ import { fetchRSSFeed, normalizeUrl } from '@/lib/rss';
 import { scrapeSource } from '@/lib/scraper';
 import { Source } from '@/types';
 
-export const maxDuration = 60; // Allow up to 60 seconds for ingestion
+export const maxDuration = 300; // Allow up to 5 minutes for ingestion
 
 // Only ingest items from the last 7 days
 const MAX_AGE_DAYS = 7;
