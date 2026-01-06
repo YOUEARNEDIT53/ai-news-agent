@@ -2,9 +2,8 @@ name: Generate AI News Podcast
 
 on:
   schedule:
-    # Run twice daily (Eastern Time)
-    - cron: '0 11 * * *'  # 6:00 AM ET (11:00 UTC)
-    - cron: '30 21 * * *' # 4:30 PM ET (21:30 UTC)
+    # Run once daily at 4:00 PM ET (21:00 UTC)
+    - cron: '0 21 * * *'
   workflow_dispatch: # Allow manual trigger
 
 env:
@@ -13,17 +12,29 @@ env:
 jobs:
   ingest-and-digest:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-      - name: Run ingest (fetch RSS feeds)
-        continue-on-error: true
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ingest dependencies
         run: |
-          echo "Triggering ingest (may timeout on Hobby plan - that's OK)..."
-          curl -X POST "${{ env.VERCEL_URL }}/api/ingest" \
-            -H "Content-Type: application/json" \
-            --show-error --max-time 120 || echo "Ingest timed out or failed - continuing with existing data"
-          echo "Ingest step complete"
+          pip install feedparser supabase python-dotenv
+
+      - name: Run RSS ingest (direct to Supabase)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "Running RSS ingest directly..."
+          python scripts/ingest_rss.py
+          echo "Ingest complete"
 
       - name: Run summarize (AI processing)
         run: |
@@ -33,7 +44,7 @@ jobs:
             --fail --show-error --max-time 300
           echo "Summarization complete"
 
-      - name: Run digest (generate daily summary)
+      - name: Run digest (generate daily summary and send email)
         run: |
           echo "Triggering digest generation..."
           curl -X POST "${{ env.VERCEL_URL }}/api/digest" \
