@@ -83,11 +83,11 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Calculate the date range for items (last 48 hours to ensure coverage)
+  // Calculate the date range for items (last 24 hours for fresh content)
   const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - 2);
+  cutoffDate.setDate(cutoffDate.getDate() - 1);
 
-  // Fetch summaries with their items from the last 48 hours
+  // Fetch summaries with their items from the last 24 hours
   const { data: summaries, error: summariesError } = await supabaseAdmin
     .from('summaries')
     .select(`
