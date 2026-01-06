@@ -27,15 +27,27 @@ DIGEST_EMAIL_TO = os.getenv('DIGEST_EMAIL_TO', 'youearnedit@gmail.com')
 DIGEST_EMAIL_FROM = os.getenv('DIGEST_EMAIL_FROM', 'AI News Agent <news@mail.ipguy.co>')
 
 def get_recent_summaries(supabase, hours=24):
-    """Get summaries from the last N hours"""
-    cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    """Get summaries from the last N hours, filtered by item publication date"""
+    summary_cutoff = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    # Also filter out items with old publication dates (older than 7 days)
+    pub_cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
 
     result = supabase.table('summaries').select(
         'summary,why_it_matters,category,topics,relevance_score,must_read,created_at,'
         'item:items(id,title,url,published_at)'
-    ).gte('created_at', cutoff).order('relevance_score', desc=True).execute()
+    ).gte('created_at', summary_cutoff).order('relevance_score', desc=True).execute()
 
-    return result.data
+    # Filter out items with old publication dates
+    filtered = []
+    for s in result.data:
+        item = s.get('item')
+        if item:
+            pub_date = item.get('published_at')
+            if pub_date and pub_date < pub_cutoff:
+                continue  # Skip old items
+        filtered.append(s)
+
+    return filtered
 
 def build_digest(summaries):
     """Build digest content from summaries"""
