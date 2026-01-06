@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
   // Get optional date from body (defaults to today)
   let targetDate = formatDate(new Date());
   let sendEmail = true;
+  let forceRegenerate = false;
   try {
     const body = await request.json();
     if (body?.date) {
@@ -30,6 +31,9 @@ export async function POST(request: NextRequest) {
     }
     if (body?.send_email === false) {
       sendEmail = false;
+    }
+    if (body?.force === true) {
+      forceRegenerate = true;
     }
   } catch {
     // Use defaults
@@ -42,7 +46,13 @@ export async function POST(request: NextRequest) {
     .eq('date', targetDate)
     .single();
 
-  if (existingDigest) {
+  // If forcing regeneration, delete existing digest
+  if (existingDigest && forceRegenerate) {
+    await supabaseAdmin
+      .from('digests')
+      .delete()
+      .eq('id', existingDigest.id);
+  } else if (existingDigest) {
     // If digest exists but email wasn't sent, try to send
     if (sendEmail && !existingDigest.email_sent) {
       const emailResult = await sendDigestEmail(
@@ -73,11 +83,11 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Calculate the date range for items (last 24 hours or since last digest)
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  // Calculate the date range for items (last 48 hours to ensure coverage)
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 2);
 
-  // Fetch summaries with their items from the last 24 hours
+  // Fetch summaries with their items from the last 48 hours
   const { data: summaries, error: summariesError } = await supabaseAdmin
     .from('summaries')
     .select(`
@@ -87,14 +97,17 @@ export async function POST(request: NextRequest) {
       topics,
       relevance_score,
       must_read,
+      created_at,
       item:items(
         id,
         title,
         url,
         content,
-        fetched_at
+        fetched_at,
+        published_at
       )
     `)
+    .gte('created_at', cutoffDate.toISOString())
     .order('relevance_score', { ascending: false });
 
   const itemsError = summariesError;

@@ -46,10 +46,10 @@ jobs:
 
       - name: Run digest (generate daily summary and send email)
         run: |
-          echo "Triggering digest generation..."
+          echo "Triggering digest generation (force fresh content)..."
           curl -X POST "${{ env.VERCEL_URL }}/api/digest" \
             -H "Content-Type: application/json" \
-            -d '{"send_email":true}' \
+            -d '{"send_email":true,"force":true}' \
             --fail --show-error --max-time 120
           echo "Digest complete"
 
