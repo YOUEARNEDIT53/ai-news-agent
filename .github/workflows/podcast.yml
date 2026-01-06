@@ -6,9 +6,6 @@ on:
     - cron: '0 21 * * *'
   workflow_dispatch: # Allow manual trigger
 
-env:
-  VERCEL_URL: https://ai-news-agent-kohl.vercel.app
-
 jobs:
   ingest-and-digest:
     runs-on: ubuntu-latest
@@ -23,34 +20,39 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install ingest dependencies
+      - name: Install dependencies
         run: |
-          pip install feedparser supabase python-dotenv
+          pip install feedparser supabase python-dotenv requests anthropic
 
       - name: Run RSS ingest (direct to Supabase)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          echo "Running RSS ingest directly..."
+          echo "Running RSS ingest..."
           python scripts/ingest_rss.py
           echo "Ingest complete"
 
-      - name: Run summarize (AI processing)
+      - name: Run summarization (AI processing)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          echo "Triggering summarization..."
-          curl -X POST "${{ env.VERCEL_URL }}/api/summarize" \
-            -H "Content-Type: application/json" \
-            --fail --show-error --max-time 300
+          echo "Running summarization..."
+          python scripts/summarize.py
           echo "Summarization complete"
 
-      - name: Run digest (generate daily summary and send email)
+      - name: Generate and send digest email
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DIGEST_EMAIL_TO: ${{ secrets.DIGEST_EMAIL_TO }}
+          DIGEST_EMAIL_FROM: "Chris Bolender's ACR AI News <news@mail.ipguy.co>"
         run: |
-          echo "Triggering digest generation (force fresh content)..."
-          curl -X POST "${{ env.VERCEL_URL }}/api/digest" \
-            -H "Content-Type: application/json" \
-            -d '{"send_email":true,"force":true}' \
-            --fail --show-error --max-time 120
+          echo "Generating digest..."
+          python scripts/generate_digest.py
           echo "Digest complete"
 
   generate-podcast:
