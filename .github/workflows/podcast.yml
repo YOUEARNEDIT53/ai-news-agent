@@ -17,12 +17,13 @@ jobs:
 
     steps:
       - name: Run ingest (fetch RSS feeds)
+        continue-on-error: true
         run: |
-          echo "Triggering ingest..."
+          echo "Triggering ingest (may timeout on Hobby plan - that's OK)..."
           curl -X POST "${{ env.VERCEL_URL }}/api/ingest" \
             -H "Content-Type: application/json" \
-            --fail --show-error --max-time 300
-          echo "Ingest complete"
+            --show-error --max-time 120 || echo "Ingest timed out or failed - continuing with existing data"
+          echo "Ingest step complete"
 
       - name: Run summarize (AI processing)
         run: |
