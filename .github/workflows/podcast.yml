@@ -2,8 +2,8 @@ name: Generate AI News Podcast
 
 on:
   schedule:
-    # Run at 3:30 PM ET (20:30 UTC), Monday-Friday
-    - cron: '30 20 * * 1-5'
+    # Run at 4:00 PM ET (21:00 UTC), Monday-Friday
+    - cron: '0 21 * * 1-5'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
